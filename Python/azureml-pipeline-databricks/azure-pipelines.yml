@@ -53,6 +53,7 @@ jobs:
           set +x  # non-verbose
           echo -n "##vso[task.setvariable variable=AMLPIPELINE_ID;isOutput=true]"
           az ml run show --run $run_id -e $EXPERIMENT_NAME-ci --query tags.PipelineId -o tsv
+          az ml run submit-pipeline testing.yml
 
 - job: Run_ML_Pipeline
   dependsOn:

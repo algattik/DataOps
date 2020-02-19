@@ -1,0 +1,26 @@
+
+variables:
+- name: title
+  value: testing
+
+environment:
+  python:
+    userManagedDependencies: false
+    interpreterPath: python
+    condaDependenciesFile: ci_dependencies.yml
+
+pool:
+  vmImage: ubuntu-latest
+
+jobs:
+- job: Build_Pipeline
+  displayName: Run Pytest and flake8
+  steps:
+    - task: AzureCLI@1
+      name: RunTestScript
+      displayName: Run Test Script
+      inputs:
+        workingDirectory: Python/azureml-pipeline-databricks/azureml/code/tests
+        inlineScript: |
+          flake8 --output-file=lint-testresults.xml --format junit-xml
+          pytest --cov=code --cov-report=xml --junitxml=unit-testresults.xml
