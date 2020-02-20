@@ -1,3 +1,3 @@
 import subprocess
 
-subprocess.check_output(["tox"])
+subprocess.check_call(["tox"])
