@@ -48,13 +48,29 @@ jobs:
           az extension add -n azure-cli-ml
           az ml folder attach -g $RESOURCE_GROUP -w $AML_WORKSPACE_NAME
           az ml datastore attach-blob -a stmyappdataopstrtest -c trainingdata -n trainingdata
-          az ml run submit-script --debug --verbose -e $EXPERIMENT_NAME-ci -c build_ml_pipeline.yaml -t run_info.json build_ml_pipeline.py --databricks_workspace_name $DATABRICKS_WORKSPACE_NAME --build_id $BUILD_BUILDID
+          az ml run submit-script --verbose -e $EXPERIMENT_NAME-ci -c build_ml_pipeline.yaml -t run_info.json build_ml_pipeline.py --databricks_workspace_name $DATABRICKS_WORKSPACE_NAME --build_id $BUILD_BUILDID
           run_id=$(jq -r .run_id run_info.json)
           set +x  # non-verbose
           echo -n "##vso[task.setvariable variable=AMLPIPELINE_ID;isOutput=true]"
-          az ml run show --debug --verbose --run $run_id -e $EXPERIMENT_NAME-ci --query tags.PipelineId -o tsv
-          flake8 --output-file=lint-testresults.xml --format junit-xml
-          pytest --cov=code --cov-report=xml --junitxml=unit-testresults.xml
+          az ml run show --verbose --run $run_id -e $EXPERIMENT_NAME-ci --query tags.PipelineId -o tsv
+
+- job: Test_Code
+  dependsOn: 
+  - Terraform
+  - Build_Pipeline
+  displayName: Test code
+  pool: server
+  steps:
+    - task: AzureCLI@1
+      name: TestPipeline
+      displayName: test pipeline code
+      inputs:
+        azureSubscription: Testing with flake8 and pytest
+        scriptLocation: inlineScript
+        workingDirectory: Python/azureml-pipeline-databricks
+        inlineScript: |
+          pip install tox
+          tox
 
 - job: Run_ML_Pipeline
   dependsOn:
