@@ -72,8 +72,7 @@ jobs:
         workingDirectory: Python/azureml-pipeline-databricks
         inlineScript: |
           pip3 install -r build-image/requirements.txt
-          flake8 --output-file=lint-testresults.xml --format junit-xml
-          pytest --cov=code --cov-report=xml --junitxml=unit-testresults.xml
+          tox
 
 - job: Run_ML_Pipeline
   dependsOn:
