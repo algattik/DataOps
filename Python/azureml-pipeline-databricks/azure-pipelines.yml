@@ -53,26 +53,7 @@ jobs:
           set +x  # non-verbose
           echo -n "##vso[task.setvariable variable=AMLPIPELINE_ID;isOutput=true]"
           az ml run show --verbose --run $run_id -e $EXPERIMENT_NAME-ci --query tags.PipelineId -o tsv
-
-- job: Test_Code
-  dependsOn: 
-  - Terraform
-  - Build_Pipeline
-  displayName: Test code
-  variables:
-    RESOURCE_GROUP: $[ dependencies.Terraform.outputs['TerraformOutputs.resource_group_name'] ]
-    AML_WORKSPACE_NAME: $[ dependencies.Terraform.outputs['TerraformOutputs.aml_workspace_name'] ]
-  steps:
-    - task: AzureCLI@1
-      name: TestPipeline
-      displayName: test pipeline code
-      inputs:
-        azureSubscription: DataOpsML Azure DevOps ML Model CI/CD pipeline
-        scriptLocation: inlineScript
-        workingDirectory: Python/azureml-pipeline-databricks
-        inlineScript: |
-          pip3 install -r build-image/requirements.txt
-          tox
+          az ml submit-script --verbose -e $EXPERIMENT_NAME-ci -c build_ml_pipeline.yaml -t run_info.json testing.py
 
 - job: Run_ML_Pipeline
   dependsOn:
