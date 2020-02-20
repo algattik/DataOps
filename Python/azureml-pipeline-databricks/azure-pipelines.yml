@@ -59,12 +59,15 @@ jobs:
   - Terraform
   - Build_Pipeline
   displayName: Test code
+  variables:
+    RESOURCE_GROUP: $[ dependencies.Terraform.outputs['TerraformOutputs.resource_group_name'] ]
+    AML_WORKSPACE_NAME: $[ dependencies.Terraform.outputs['TerraformOutputs.aml_workspace_name'] ]
   steps:
     - task: AzureCLI@1
       name: TestPipeline
       displayName: test pipeline code
       inputs:
-        azureSubscription: Testing with flake8 and pytest
+        azureSubscription: DataOpsML Azure DevOps ML Model CI/CD pipeline
         scriptLocation: inlineScript
         workingDirectory: Python/azureml-pipeline-databricks
         inlineScript: |
