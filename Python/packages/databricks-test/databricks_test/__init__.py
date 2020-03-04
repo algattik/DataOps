@@ -85,11 +85,16 @@ class Session():
         self.display = MagicMock()
         self.displayHTML = MagicMock()
         self.dbutils = DbUtils()
+        
+        if(sys.platform.startswith('win')):
+            hivedir=f"file:///{hivedir}"
+        else:
+            hivedir=f"file:{hivedir}"
 
         self.spark = (SparkSession.builder
                       .master("local")
                       .appName("test-pyspark")
-                      .config("spark.sql.warehouse.dir", f"file:{hivedir}")
+                      .config("spark.sql.warehouse.dir", hivedir)
                       .enableHiveSupport()
                       .getOrCreate())
 
